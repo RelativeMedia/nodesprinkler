@@ -116,7 +116,6 @@ describe('Station Api ::', function(){
 
   it('PUT /api/station/:id should update an existing station with valid information', function(done){
     createValidStation().end(function(err, station){
-      console.log(station.body);
       var stationUpdates = {
         name: 'Station ' + faker.lorem.words(1),
         enabled: true
@@ -128,7 +127,6 @@ describe('Station Api ::', function(){
         if(err){
           throw err;
         }
-        console.log(res.body);
         res.status.should.equal(200);
         res.body.name.should.equal(stationUpdates.name);
         res.body.enabled.should.equal(stationUpdates.enabled);
@@ -219,21 +217,9 @@ describe('Station Api ::', function(){
   });
 
   it('POST /api/station/run/:id should manually run a station', function(done){
-
-    var station = {
-      name: 'Station ' + faker.lorem.words(1),
-      enabled: true
-    };
-
-    request(url)
-    .post('/station/create')
-    .send(station)
-    .end(function(err, res){
-
-      var station = res.body;
-
+    createValidStation(true).end(function(err, station){
       request(url)
-      .post('/station/run/' + station.id)
+      .post('/station/run/' + station.body.id)
       .send({
         runTime: 60 //run for 60 seconds
       })
@@ -246,26 +232,14 @@ describe('Station Api ::', function(){
         done();
       });
     });
-
-
-
   });
 
   it('POST /api/station/stop/:id should manually stop a station', function(done){
 
-    var station = {
-      name: 'Station ' + faker.lorem.words(1),
-      enabled: true
-    };
 
-    request(url)
-    .post('/station/create')
-    .send(station)
-    .end(function(err, res){
-
-      var station = res.body;
+    createValidStation(true).end(function(err, station){
       request(url)
-      .post('/station/run/' + station.id)
+      .post('/station/run/' + station.body.id)
       .send({
         runTime: 60 //run for 60 seconds,
       })
@@ -273,9 +247,8 @@ describe('Station Api ::', function(){
         if(err){
           throw err;
         }
-
         request(url)
-        .post('/station/stop/' + station.id)
+        .post('/station/stop/' + station.body.id)
         .send()
         .end(function(err, res){
           if(err){

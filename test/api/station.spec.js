@@ -264,6 +264,39 @@ describe('Station Api', function(){
 
   it('POST /api/station/stop/:id should manually stop a station', function(done){
 
+    var station = {
+      name: 'Station ' + faker.lorem.words(1),
+      enabled: true
+    };
+
+    request(url)
+    .post('/station/create')
+    .send(station)
+    .end(function(err, res){
+
+      var station = res.body;
+      request(url)
+      .post('/station/run/' + station.id)
+      .send({
+        runTime: 60 //run for 60 seconds,
+      })
+      .end(function(err, res){
+        if(err){
+          throw err;
+        }
+
+        request(url)
+        .post('/station/stop/' + station.id)
+        .send()
+        .end(function(err, res){
+          if(err){
+            throw err;
+          }
+          res.status.should.equal(200);
+          done();
+        });
+      });
+    });
   });
 
   it('GET /api/station/schedules/:id should show a list of schedules for station :id');

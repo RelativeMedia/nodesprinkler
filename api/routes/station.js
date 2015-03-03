@@ -175,14 +175,14 @@ module.exports = function(router){
 
       station.updateAttributes({
         status: true,
-        lastRun: new Date()
+        lastRunStart: new Date()
       })
       .then(function(station){
           nodesprinkler.log.debug('Updated station', station.id, 'set to enabled');
           res.sendStatus(200);
       })
       .catch(function(error){
-          nodesprinkler.log.error('Unable to enable station', station.id,'for x reason');
+          nodesprinkler.log.error('Unable to enable station', station.id,'for x reason', error);
           res.sendStatus(400);
       });
     })
@@ -194,7 +194,39 @@ module.exports = function(router){
 
   // - POST /api/station/stop/:id should manually stop a station
   router.post('/station/stop/:id', function(req, res){
-      res.sendStatus(500);
+
+    // @TODO: need to figure out how to manuualy stop a station off the rpi
+    // a POST to this route should contain the PARAM :id to stop.
+
+    req.db.Station.find({
+      where: {
+        id: req.params.id,
+        enabled: true, // we only want stations which are enabled
+        status: true   // we only want stations which are running right now.
+      }
+    })
+    .then(function(station){
+
+      // @TODO: once we found our station, do something on the rpi to turn that
+      // station off. Once we know its off, update the database to reflect this.
+
+      station.updateAttributes({
+        status: false,
+        lastRunEnd: new Date()
+      })
+      .then(function(station){
+        nodesprinkler.log.debug('Updated station', station.id, 'set to disabled');
+        res.sendStatus(200);
+      })
+      .catch(function(error){
+        nodesprinkler.log.error('Unable to disable station', station.id,'for x reason', error);
+        res.sendStatus(400);
+      });
+    })
+    .catch(function(error){
+      nodesprinkler.log.error('Unable to find a valid (enabled) station to run');
+      res.status(404).json(error);
+    });
   });
 
   return router;

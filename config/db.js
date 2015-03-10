@@ -6,7 +6,7 @@
 // =============================================================================
 
 var DbConfigs = {
-  forceSync: true, //force a complete resync of the database on each load
+  uri: 'mongodb://localhost:27017/nodesprinkler_dev',
 };
 
 module.exports = DbConfigs;

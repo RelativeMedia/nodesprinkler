@@ -1,16 +1,18 @@
 'use strict';
 
-// routes/user.js
+// routes/station.js
 
-// User Routes
+// Station Routes
 // =============================================================================
+
+var user = require('../controllers/user.controller');
 module.exports = function(router){
 
-  router.get('/test', function(req, res){
-    console.log('hello from /api/v1/');
-    res.send({ message: 'Hello from /api/v1' });
-    res.end();
-  });
+  router.get('/user', user.requiresToken, user.requiresLogin, user.list);
+
+  router.post('/user/register', user.register);
+  router.post('/user/login', user.login);
+  router.post('/user/logout', user.requiresToken, user.requiresLogin, user.logout);
 
   return router;
 };

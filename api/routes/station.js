@@ -4,55 +4,17 @@
 
 // Station Routes
 // =============================================================================
+var station = require('../controllers/station.controller');
+var user = require('../controllers/user.controller');
+
 module.exports = function(router){
 
   // - GET /api/station should show a list of stations
-  router.get('/station', function(req, res){
-    req.db.Station.findAll().then(function(stations){
-        res.json(stations);
-    });
-  });
-
-
-
+  router.get('/station', user.requiresToken, station.list);
   // - GET /api/station/:id should show a single station's details
-  router.get('/station/:id', function(req, res){
-    req.db.Station.find(req.params.id)
-    .then(function(station){
-      if(station === null){
-        nodesprinkler.log.error('GET /station/' + req.params.id, 'no station found');
-        res.status(404).json({ message: 'No Station By That ID' });
-      }else{
-        nodesprinkler.log.debug('GET /station/' + req.params.id, 'found a station');
-        res.json(station);
-      }
-    });
-  });
-
-
-
+  router.get('/station/:id', user.requiresToken, station.find);
   // - POST /api/station/create should create a new station with valid information
-  router.post('/station/create', function(req, res){
-    var station = req.db.Station.build({
-      enabled: true,
-      status: false,
-    });
-
-    station.name    = req.body.name;
-    station.enabled = req.body.enabled;
-
-    station
-      .save()
-      .then(function(station){
-        nodesprinkler.log.debug('successful station save /api/station/create');
-        res.json(station);
-      })
-      .catch(function(error){
-          nodesprinkler.log.error('error on POST /api/station/create');
-          res.status(400).json(error);
-      });
-
-  });
+  router.post('/station/create', user.requiresToken, station.create);
 
 
 
